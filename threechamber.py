@@ -2,10 +2,6 @@ from PIL import Image,ImageDraw
 import cv2
 from pickle import dump, load
 import os.path
-# 0/10 Rhiannon's 04/09/2020 homework not turned in.
-
-def test():
-  print("Hello World")
 
 def drawtri():
   img = Image.new('RGB', (100,100), (255,255,255))
