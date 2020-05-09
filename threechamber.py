@@ -199,4 +199,26 @@ def cz_video(video):
     last = (X/w,Y/w)
     print("(" +str(X/w)+ ", "+str(Y/w)+")")
 
+points_file = 'frames/points'
 
+def which_chamber(video):
+  if os.path.isfile(points_file):
+    f = open(points_file)
+    for line in f:
+      x = float(line.split(", ")[0][1:])
+      if x < 210:
+        print (0)
+      if x >= 210 and x < 405:
+        print (1)
+      if x >= 405:
+        print (2)
+      
+  
+  
+  
+  
+  
+  
+  
+  
+  
