@@ -172,6 +172,8 @@ def z_video(video):
     
 
 z_file = 'pickle_zs'
+points_file = 'frames/points'
+chambers_file = 'frames/chambers'
 
 def cz_video(video):
   if os.path.isfile(z_file):
@@ -182,6 +184,7 @@ def cz_video(video):
     f = open(z_file, 'wb')
     dump(zs, f)
     f.close()
+  out = open(points_file, "w")
   last = None
   for z  in  zs:
     X,Y = 0,0
@@ -197,21 +200,33 @@ def cz_video(video):
         X+=i*wi
         Y+=j*wi
     last = (X/w,Y/w)
-    print("(" +str(X/w)+ ", "+str(Y/w)+")")
-
-points_file = 'frames/points'
+    out.write("(" +str(X/w)+ ", "+str(Y/w)+")")
+  out.close()
 
 def which_chamber(video):
+  out = open(chambers_file, "w")
   if os.path.isfile(points_file):
     f = open(points_file)
     for line in f:
       x = float(line.split(", ")[0][1:])
       if x < 210:
-        print (0)
+        out.write ("0\n")
       if x >= 210 and x < 405:
-        print (1)
+        out.write ("1\n")
       if x >= 405:
-        print (2)
+        out.write("2\n")
+  out.close()
+
+def time_chamber(video):
+  if os.path.isfile(chambers_file):
+    f = open(chambers_file)
+    counts = [0,0,0]
+    for line in f:
+      chamber = int(line)
+      counts[chamber]+=3.33
+      
+    print(counts)
+
       
   
   
