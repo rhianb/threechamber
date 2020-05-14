@@ -1,10 +1,11 @@
 from PIL import Image,ImageDraw
 import cv2
 from pickle import dump, load
-import os.path
+import os
 
-mean_file = "statistics/mean.jpg"
-sd_file = "statistics/sd.jpg"
+stats_dir = "statistics/"
+mean_file = stats_dir+"mean.jpg"
+sd_file = stats_dir+"sd.jpg"
 z_dir = "z_pics/"
 z_pickle = 'zscore.pickle'
 points_file = 'statistics/mouse_location'
@@ -14,6 +15,13 @@ chambers_file = 'statistics/mouse_chamber'
 skip=100
 # Depends on the video
 fps=30
+
+def setup():
+  if not os.path.isdir(stats_dir):
+    os.mkdir(stats_dir)
+  if not os.path.isdir(z_dir):
+    os.mkdir(z_dir)
+
 
 def avg_video(video):
   if os.path.isfile(mean_file):
@@ -25,6 +33,7 @@ def avg_video(video):
   px1 = [[(0,0,0) for _ in range(frame.size[1])] for _ in range(frame.size[0])]
   mean = Image.new('RGB',frame.size, (0,0,0))
   px = mean.load()
+  
   while success:
     if frames%skip == 0:
       print(frames)
@@ -82,7 +91,7 @@ def stddev_video(video):
 
 def z_video(video):
   mean = avg_video(video)
-  sd = stddev_video(video, mean)
+  sd = stddev_video(video)
   mean_px = mean.load()
   sd_px = sd.load()
   zs = []
@@ -144,29 +153,32 @@ def cz_video(video):
 
 def which_chamber(video):
   out = open(chambers_file, "w")
-  if os.path.isfile(points_file):
-    f = open(points_file)
-    for line in f:
-      x = float(line.split(", ")[0][1:])   
-         
-      #Wall locations hard coded for now    
-      if x < 210:
-        out.write ("0\n")
-      if x >= 210 and x < 405:
-        out.write ("1\n")
-      if x >= 405:
-        out.write("2\n")
+  if not os.path.isfile(points_file):
+    cz_video(video)
+  f = open(points_file)
+  for line in f:
+    x = float(line.split(", ")[0][1:])   
+       
+    #Wall locations hard coded for now    
+    if x < 210:
+      out.write ("0\n")
+    if x >= 210 and x < 405:
+      out.write ("1\n")
+    if x >= 405:
+      out.write("2\n")
   out.close()
 
 
 def time_chamber(video):
-  if os.path.isfile(chambers_file):
-    f = open(chambers_file)
-    counts = [0,0,0]
-    for line in f:
-      chamber = int(line)
-      counts[chamber]+=skip/fps
-    print(counts)
+  setup()
+  if not os.path.isfile(chambers_file):
+    which_chamber(video)
+  f = open(chambers_file)
+  counts = [0,0,0]
+  for line in f:
+    chamber = int(line)
+    counts[chamber]+=skip/fps
+  print(counts)
 
       
   
